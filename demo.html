@@ -1,0 +1,86 @@
+<html>
+    <head>
+        <style>
+            :root { --container-size: 400px; }
+
+            body {
+                display: flex;
+                flex-wrap: wrap;
+                width: calc(2 * var(--container-size) + 20px);
+                gap: 5px;
+                align-items: flex-start;
+            }
+
+            body > * { width: var(--container-size); }
+
+            #recorded-area, #replay-area {
+                height: var(--container-size);
+                border: 1px solid;
+            }
+        </style>
+
+        <script>
+            addEventListener('DOMContentLoaded', () => {
+                const recordedArea = document.getElementById('recorded-area');
+                const replayArea = document.getElementById('replay-area');
+                const recordedEvents = [];
+
+                window.addNode = function() {
+                    const node = document.createElement('div');
+                    node.style.width = '40px';
+                    node.style.height = '40px';
+                    node.style.backgroundColor = "#" + ((1<<24)*Math.random() | 0).toString(16);
+                    node.style.float = 'left';
+
+                    recordedArea.appendChild(node);
+                }
+
+                window.replay = async function replay() {
+                    replayArea.textContent = '';
+
+                    let lastEventTimestamp = recordedEvents[0].timestamp;
+
+                    for (const event of recordedEvents) {
+                        const delay = event.timestamp - lastEventTimestamp;
+                        const eventExecutionPromise = new Promise((resolve) => {
+                            setTimeout(() => {
+                                const node = document.createElement(event.node.nodeName);
+                                node.style = event.node.style.cssText;
+                                replayArea.appendChild(node);
+                                resolve();
+                            }, delay);
+                        });
+
+                        await eventExecutionPromise;
+                        lastEventTimestamp = event.timestamp;
+                    }
+                }
+
+                const observer = new MutationObserver((mutationList) => {
+                    for (const mutation of mutationList) {
+                        if (mutation.type === 'childList') {
+                            recordedEvents.push({
+                                type: 'appendChild',
+                                timestamp: Date.now(),
+                                node: mutation.addedNodes[0]
+                            });
+                        }
+                    }
+                });
+                observer.observe(recordedArea, {subtree: true, childList: true});
+            });
+        </script>
+    </head>
+    <body>
+        <div id="recorded-area">
+        </div>
+        <div id="replay-area">
+        </div>
+        <span>
+            <button onclick="addNode()">Add node</button>
+        </span>
+        <span>
+            <button onclick="replay()">Replay</button>
+        </span>
+    </body>
+</html>

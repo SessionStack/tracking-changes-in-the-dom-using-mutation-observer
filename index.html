@@ -1,0 +1,177 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.0/dist/theme/white.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.5.0/styles/github.css">
+    <style>
+      :root {
+        --r-heading-text-transform: none;
+      }
+
+      .reveal blockquote {
+	background: #fff;
+        border-left: 10px solid #ccc;
+        width: 98%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- <section data-background-image="opening-slide.png" data-background-size="cover"> -->
+        <!-- </section> -->
+        <section data-markdown>
+            <script type="text/template">
+              ## About Me
+
+              * VP Of Enginnering at SessionStack
+              * More than 10 years of programming experience
+              * Experience with typed and script languages - Python, Ruby, JavaScript, NodeJS, Java, C
+              * Interested in the whole stack - from frontend frameworks to infrastructure
+              * Loves Mountain Biking &#x1F6B5;
+
+              ---
+
+              ## About SessionStack
+
+              * Digital Experience Insights platform that uncovers opportunities for digital growth
+              * Collects various user interactions from the browser
+              * Stores more than 10 billions events per month
+
+              ---
+
+              ## MutationObserver Web API
+
+              > The MutationObserver interface provides the ability to watch for changes being made to the DOM tree.
+
+              ---
+
+              ## Demo App
+
+              TODO ADD GIF
+
+              ---
+
+              ## Demo App
+
+              ```javascript
+const recordedArea = document.getElementById('recorded-area');
+
+...
+
+function addNode() {
+    const node = document.createElement('div');
+    node.style.width = '40px';
+    node.style.height = '40px';
+    node.style.backgroundColor = "#" + ((1<<24)*Math.random() | 0).toString(16);
+    node.style.float = 'left';
+
+    recordedArea.appendChild(node);
+}
+
+              ```
+
+              ---
+
+              ## Demo App Observing Mutations
+
+              ```javascript
+const recordedEvents = [];
+
+...
+
+const observer = new MutationObserver((mutationList) => {
+    for (const mutation of mutationList) {
+        if (mutation.type === 'childList') {
+            const recordedEvent = {type: 'appendChild'};
+            recordedEvent.timestamp = Date.now();
+            recordedEvent.node = mutation.addedNodes[0];
+            recordedEvents.push(recordedEvent);
+        }
+    }
+});
+observer.observe(recordedArea, {subtree: true, childList: true});
+              ```
+
+              ---
+
+              ## Demo App Replaying Mutations
+
+              ```javascript
+for (const event of recordedEvents) {
+    const delay = event.timestamp - lastEventTimestamp;
+    const eventExecutionPromise = new Promise((resolve) => {
+        setTimeout(() => {
+            const node = document.createElement(event.node.nodeName);
+            node.style = event.node.style.cssText;
+            replayArea.appendChild(node);
+            resolve();
+        }, delay);
+    });
+
+    await eventExecutionPromise;
+    lastEventTimestamp = event.timestamp;
+}
+              ```
+
+              ---
+
+              ## Demo App Demo ;)
+
+              TODO ADD GIF
+
+              ---
+
+              ## Mutation Observer Real Life Use Cases
+
+              * AngularJS
+              * WYSIWYG editor
+              * SessionStack
+
+              ---
+
+              ## Q&A
+
+              https://blog.sessionstack.com/how-javascript-works-tracking-changes-in-the-dom-using-mutationobserver-86adc7446401
+
+              ---
+
+              ## Resources
+
+              https://blog.sessionstack.com/how-javascript-works-tracking-changes-in-the-dom-using-mutationobserver-86adc7446401
+
+              https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+
+              github repo link
+
+
+            </script>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.0/dist/reveal.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.0/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.0/plugin/highlight/highlight.js"></script>
+    <script>
+      for (var slide of document.getElementsByTagName('section')){
+        if (!(slide.getAttribute('data-background-image') ||
+              slide.getAttribute('data-background-color') ||
+              slide.getAttribute('data-background-video') ||
+              slide.getAttribute('data-background-iframe'))){
+          slide.setAttribute('data-background-image', './image1.png')
+          slide.setAttribute('data-background-size', 'contain')
+          slide.setAttribute('data-background-repeat', 'repeat')
+          slide.setAttribute('data-background-color', '#fff')
+        }
+      }
+
+      Reveal.initialize({
+        plugins: [RevealMarkdown, RevealHighlight],
+        slideNumber: true,
+        width: 1280,
+        height: 700,
+        center: false
+      });
+    </script>
+  </body>
+</html>
